@@ -11,6 +11,17 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import json
+
+
+def get_secrets(filename: str) -> str:
+    filename = BASE_DIR / filename
+    with open(filename, 'r') as f:
+        secrets = json.loads(f.read())
+
+    return secrets.get('SECRET_KEY', '')
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY =
+SECRET_KEY = get_secrets('secrets.json')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
