@@ -44,9 +44,16 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
+10. Make a superuser account in Django Admin with the following command.
+```shell
+python manage.py createsuperuser
+```
+11. Access the server with the following URL.
+```url
+python manage.py runserver
+```
 
-
-### secrets.json Format
+#### secrets.json Format
 The secrets.json is a distinct JSON file that contains secret key for Django.
 ```json
 {
@@ -59,9 +66,8 @@ To get a secret key, Use the following command in the project root directory und
 python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 ```
 
-### dbconnection.cnf Format
+#### dbconnection.cnf Format
 ```ini
-[client]
 [client]
 database = murok
 user = whatever
@@ -70,6 +76,31 @@ default-character-set = utf8
 host = 127.0.0.1
 port = 3306
 ```
+
+## Deployment
+### WSGI - Hypercorn
+To run the server via WSGI, use the following command.
+```shell
+hypercorn murok_backend.asgi:application --bind [IP]:[Port] --reload
+```
+QUIC bind will be appended later.
+
+#### HTTPS Support
+To support HTTP/2 and HTTP/3, we must use HTTPS.
+**This section is Under Construction.**
+
+### CI/CD
+Not yet. We're considering Docker and GitHub Actions.
+
+### Server Deployment
+
+#### Run on Internet Information Services (IIS)
+
+#### Run on NGINX
+
+#### Run on Caddy V2 Server
+
+#### Run on Docker
 
 ---
 Copyright © 2023 Team Summit; Capella87 and LeeDayDay
