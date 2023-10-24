@@ -14,12 +14,12 @@ from pathlib import Path
 import json
 
 
-def get_secrets(filename: str) -> str:
+def get_secrets(filename: str, key: str) -> str:
     filename = BASE_DIR / filename
     with open(filename, 'r') as f:
         secrets = json.loads(f.read())
 
-    return secrets.get('SECRET_KEY', '')
+    return secrets.get(key, '')
 
 
 
@@ -31,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secrets('secrets.json')
+SECRET_KEY = get_secrets('secrets.json', 'SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,6 +42,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,10 +53,15 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework.authtoken',
 
+    'drfpasswordless',
     'drf_spectacular',
     'drf_spectacular_sidecar',
+
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -106,6 +113,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -169,3 +177,18 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Passwordless Auth
+PASSWORDLESS_AUTH = {
+   'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
+    'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': get_secrets('secrets.json', 'EMAIL_HOST_USER'),  # callback token을 전송하는 메일
+}
+
+# Email
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = get_secrets('secrets.json', 'EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = get_secrets('secrets.json', 'EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+# 사이트와 관련한 자동응답을 받을 이메일 주소
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
