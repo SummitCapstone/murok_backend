@@ -113,6 +113,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
@@ -178,10 +179,30 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+from datetime import timedelta
+
+# Simple JWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # AccessToken 수명 설정
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # SlidingToken 갱신 시간 설정
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=7),  # SlidingToken 수명 설정
+    'SLIDING_TOKEN_REFRESH_LIFETIME_ALGORITHM': 'same-origin',  # SlidingToken 갱신 알고리즘 설정
+    'SLIDING_TOKEN_REFRESH_COMPARED_TO_ACCESS_TOKEN': False,  # SlidingToken 갱신 여부 설정
+}
+
 # Passwordless Auth
 PASSWORDLESS_AUTH = {
    'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
     'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': get_secrets('secrets.json', 'EMAIL_HOST_USER'),  # callback token을 전송하는 메일
+    'PASSWORDLESS_EMAIL_SUBJECT': "무럭무럭 로그인을 위한 인증 번호입니다.",  # Email 제목
+    'PASSWORDLESS_EMAIL_PLAINTEXT_MESSAGE': "무럭무럭 로그인을 위한 인증 번호 : %s",  # Email 내용
+    # What function is called to construct an authentication tokens when
+    # exchanging a passwordless token for a real user auth token. This function
+    # should take a user and return a tuple of two values. The first value is
+    # the token itself, the second is a boolean value representating whether
+    # the token was newly created.
+    'PASSWORDLESS_AUTH_TOKEN_CREATOR': 'accounts.utils.create_jwt_token',
+
 }
 
 # Email
