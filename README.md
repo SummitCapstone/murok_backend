@@ -23,6 +23,10 @@ Host OS is not matter. We've tested on both Windows 10 and Ubuntu 22.04 LTS.
 In recently (Oct 2023), Python 3.12 is released, we've not deployed the version due to 
 the lack of our dependencies' corresponding versions.
 
+Because of MariaDB's features, Using equivalent MySQL version is also accepted and should be worked well, but we strongly recommended to use MariaDB for performance and compatibility.
+
+There's another MySQL-compatible database, Dolt, is not tested yet.
+
 ### Installation
 1. Clone this repository.
 2. Install the prerequisites above and dependencies in requirements.txt. Venv is required.
