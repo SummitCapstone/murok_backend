@@ -8,8 +8,7 @@
 * Django REST Framework 3.14.0 or later
 * MariaDB 10.6.x or 10.11.x (LTS)
 * Certbot 1.21.0 or later (For HTTPS certificates)
-* Django4-rest-swagger 1.1.0 or later (For API documentation)
-Other trivial requirements are specified on the requirements.txt file.
+* Other requirements are in requirements.txt
 
 To configure frontend development environment, see frontend one.
 
@@ -69,6 +68,10 @@ To get a secret key, Use the following command in the project root directory und
 ```shell
 python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 ```
+
+Other elements are currently included:
+* EMAIL_HOST_USER
+* EMAIL_HOST_PASSWORD
 
 #### dbconnection.cnf Format
 ```ini
