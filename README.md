@@ -6,7 +6,7 @@
 * Django 4.2.x
 * Python 3.11 or later
 * Django REST Framework 3.14.0 or later
-* MariaDB 10.6.x or 10.11.x (LTS)
+* MariaDB 10.11.x (LTS) or later (Tested in 11.2.x with problems. See troubleshooting)
 * Certbot 1.21.0 or later (For HTTPS certificates)
 * Other requirements are in requirements.txt
 
@@ -24,12 +24,12 @@ the lack of our dependencies' corresponding versions.
 
 Because of MariaDB's features, Using equivalent MySQL version is also accepted and should be worked well, but we strongly recommended to use MariaDB for performance and compatibility.
 
-There's another MySQL-compatible database, Dolt, is not tested yet.
+There's another MySQL-compatible database, Dolt, it is not tested yet.
 
 ### Installation
 1. Clone this repository.
 2. Install the prerequisites above and dependencies in requirements.txt. Venv is required.
-3. Install mysqlclient package to connect to MariaDB.
+3. Install mysqlclient package to connect to MariaDB. If you have a trouble in
 4. Access MariaDB and make a database named 'murok'.
 5. Make a new account for its admin and grant permissions to it.
 ```mariadb
@@ -42,11 +42,14 @@ GRANT ALL PRIVILEGES ON murok.* TO 'murok'@'localhost';
 8. Set 'read_default_file' to dbconnection.cnf in settings.py.
 9. Run the server with the following command.
 
+**WARNING**: To prevent stuck in migration work, Please migrate ```accounts``` app explicitly first.
+
 ```shell
 python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
+
 10. Make a superuser account in Django Admin with the following command.
 ```shell
 python manage.py createsuperuser
@@ -108,6 +111,22 @@ Not yet. We're considering Docker and GitHub Actions.
 #### Run on Caddy V2 Server
 
 #### Run on Docker
+
+## Troubleshooting
+### Database Configurations
+#### MySQLClient Problem with MariaDB 11.x
+It is no problem when you installed the latest version of MySQL as of Nov 2023.
+
+In this situation, They require ```libmysqlclient22``` package to install. That package is included in MySQL APT Repository.
+Visit the [MySQL Download Page](https://dev.mysql.com/downloads/repo/apt/) and install the package.
+After updating APT information, you can install ```libmysqlclient22```
+
+Also, Set a custom build of mysqlclient.
+```bash
+$ export MYSQLCLIENT_CFLAGS=`pkg-config mysqlclient --cflags`
+$ export MYSQLCLIENT_LDFLAGS=`pkg-config mysqlclient --libs`
+$ pip install mysqlclient
+```
 
 ---
 Copyright © 2023 Team Summit; Capella87 and LeeDayDay
