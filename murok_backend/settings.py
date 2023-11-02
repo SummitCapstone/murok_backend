@@ -14,24 +14,24 @@ from pathlib import Path
 import json
 
 
-def get_secrets(filename: str, key: str) -> str:
+def get_secrets(filename: str) -> dict:
     filename = BASE_DIR / filename
     with open(filename, 'r') as f:
         secrets = json.loads(f.read())
 
-    return secrets.get(key, '')
+    return secrets
 
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+SECRETS: dict = get_secrets('secrets.json')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secrets('secrets.json', 'SECRET_KEY')
+SECRET_KEY = SECRETS.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -193,7 +193,7 @@ SIMPLE_JWT = {
 # Passwordless Auth
 PASSWORDLESS_AUTH = {
    'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
-    'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': get_secrets('secrets.json', 'EMAIL_HOST_USER'),  # callback token을 전송하는 메일
+    'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': SECRETS.get('EMAIL_HOST_USER', ''),  # callback token을 전송하는 메일
     'PASSWORDLESS_EMAIL_SUBJECT': "무럭무럭 로그인을 위한 인증 번호입니다.",  # Email 제목
     'PASSWORDLESS_EMAIL_PLAINTEXT_MESSAGE': "무럭무럭 로그인을 위한 인증 번호 : %s",  # Email 내용
     # What function is called to construct an authentication tokens when
@@ -208,8 +208,8 @@ PASSWORDLESS_AUTH = {
 # Email
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
-EMAIL_HOST_USER = get_secrets('secrets.json', 'EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = get_secrets('secrets.json', 'EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = SECRETS.get('EMAIL_HOST_USER', None)
+EMAIL_HOST_PASSWORD = SECRETS.get('EMAIL_HOST_PASSWORD', None)
 EMAIL_USE_TLS = True
 # 사이트와 관련한 자동응답을 받을 이메일 주소
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
