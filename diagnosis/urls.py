@@ -4,5 +4,5 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 from .views import UserRequestDiagnosis
 
 urlpatterns = [
-    path('request/', UserRequestDiagnosis.as_view()),
+    # path('request/', UserRequestDiagnosis.as_view()),
 ]

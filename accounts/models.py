@@ -1,7 +1,8 @@
 import uuid
 
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, AbstractUser
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None):
@@ -20,6 +21,7 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, blank=False)
@@ -34,3 +36,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class RequestUser(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    last_request_date = models.DateTimeField(auto_now=True)
+    first_request_data = models.DateTimeField(auto_now_add=True, editable=False)
+    registered_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='registered_user', default=None,
+                                        null=False)
