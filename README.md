@@ -28,7 +28,9 @@ Host OS is not matter. We've tested on both Windows 10 and Ubuntu 22.04 LTS.
 In recently (Oct 2023), Python 3.12 is released, we've not deployed the version due to 
 the lack of our dependencies' corresponding versions.
 
-Because of MariaDB's features, Using equivalent MySQL version is also accepted and should be worked well, but we strongly recommended to use MariaDB for performance and compatibility.
+Because of MariaDB's features, Using equivalent MySQL version is also accepted 
+and worked well in most cases that we've met, 
+but we strongly recommended to use MariaDB for performance and compatibility.
 
 There's another MySQL-compatible database, Dolt, it is not tested yet.
 
@@ -178,4 +180,6 @@ Or you can manually shut down WSL2 after using it.
 ```
 
 ---
-Copyright © 2023 Team Summit; Capella87 and LeeDayDay
+Copyright © 2023 [Team Summit](https://github.com/SummitCapstone); [Capella87](https://github.com/Capella87) and [LeeDayDay](https://github.com/LeeDayDay).
+
+See the organization page for more information about this project.
