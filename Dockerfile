@@ -13,8 +13,6 @@ RUN apk update && apk upgrade
 RUN apk add --no-cache bash mariadb-dev mariadb-client mariadb-common python3-dev build-base
 RUN apk add --no-cache mariadb-connector-c-dev mariadb-embedded mariadb-embedded-dev
 
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Install mysqlclient for Django and MariaDB
 RUN pip3 install mysqlclient
 
