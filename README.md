@@ -1,6 +1,8 @@
 # Murok-Backend 무럭무럭 백엔드
 2023-2 Capstone Design Project by Team Summit
 
+### Proudly powered by **[Django](https://djangoproject.com)** and **Django REST Framework**.
+
 ## Requirements
 ### Prerequisites
 * Django 4.2.x
@@ -8,7 +10,11 @@
 * Django REST Framework 3.14.0 or later
 * MariaDB 10.11.x (LTS) or later (Tested in 11.2.x with problems. See troubleshooting)
 * Certbot 1.21.0 or later (For HTTPS certificates)
-* Other requirements are in requirements.txt
+* Docker Desktop (WSL2 is required for Windows)
+* Docker CE (Linux)
+* Kubernetes (You can install via Docker Desktop)
+* Other requirements are specified in requirements.txt
+* mysqlclient 2.1.0 or later (For MariaDB connection)
 
 To configure frontend development environment, see frontend one.
 
@@ -25,6 +31,12 @@ the lack of our dependencies' corresponding versions.
 Because of MariaDB's features, Using equivalent MySQL version is also accepted and should be worked well, but we strongly recommended to use MariaDB for performance and compatibility.
 
 There's another MySQL-compatible database, Dolt, it is not tested yet.
+
+To use Docker in Windows, You must have Windows 10 20H1 (10.0.19041) or later 
+and WSL2 (Windows Subsystems for Linux 2) installed.
+See [Docker Desktop for Windows](https://docs.docker.com/docker-for-windows/install/) for more information.
+
+See [WSL2 Installation Guide](https://learn.microsoft.com/en-us/windows/wsl/install) for more information about WSL2.
 
 ### Installation
 1. Clone this repository.
@@ -126,6 +138,43 @@ Also, Set a custom build of mysqlclient.
 $ export MYSQLCLIENT_CFLAGS=`pkg-config mysqlclient --cflags`
 $ export MYSQLCLIENT_LDFLAGS=`pkg-config mysqlclient --libs`
 $ pip install mysqlclient
+```
+
+As of Nov 2023, Capella87 has successfully tested in KDE Neon based on Ubuntu 22.04 LTS with MariaDB 11.2.x.
+
+### Deployment Problems
+#### Docker Socket Problem in PyCharm
+You have to install docker-ce and related packages first.
+```bash
+$ sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+```
+
+Then, you have activate Docker in services by systemctl.
+```bash
+$ sudo systemctl start docker
+$ sudo systemctl enable docker
+$ sudo systemctl restart docker
+```
+
+After that, you might see this error message in PyCharm.
+```text
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running? (Details: [13] Permission denied)
+```
+
+You can finally solve this problem by granting permission to the docker socket.
+```bash
+$ sudo chown $USER:docker /var/run/docker.sock
+```
+
+#### WSL2 Memory Leakage Problem
+From WSL 1.3.10, There's a workaround for this problem. Add this setting to %userprofile%\.wslconfig.
+```ini
+[experimental]
+autoMemoryReclaim=true
+```
+Or you can manually shut down WSL2 after using it.
+```powershell
+> wsl --shutdown
 ```
 
 ---
