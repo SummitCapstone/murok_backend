@@ -184,10 +184,7 @@ from datetime import timedelta
 # Simple JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # AccessToken 수명 설정
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # SlidingToken 갱신 시간 설정
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=7),  # SlidingToken 수명 설정
-    'SLIDING_TOKEN_REFRESH_LIFETIME_ALGORITHM': 'same-origin',  # SlidingToken 갱신 알고리즘 설정
-    'SLIDING_TOKEN_REFRESH_COMPARED_TO_ACCESS_TOKEN': False,  # SlidingToken 갱신 여부 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),  # RefreshToken 수명 설정
 }
 
 # Passwordless Auth
