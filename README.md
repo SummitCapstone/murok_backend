@@ -125,6 +125,11 @@ Not yet. We're considering Docker and GitHub Actions.
 #### Run on Caddy V2 Server
 
 #### Run on Docker
+1. Build a Docker image
+To build the Dockerfile, use the following command.
+```shell
+$ docker build -t [whateveryouwant]/murok:v0.1 . --network=host
+```
 
 ## Troubleshooting
 ### Database Configurations
@@ -151,7 +156,7 @@ You have to install docker-ce and related packages first.
 $ sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 ```
 
-Then, you have activate Docker in services by systemctl.
+Then, you have to activate Docker in services by systemctl.
 ```bash
 $ sudo systemctl start docker
 $ sudo systemctl enable docker
