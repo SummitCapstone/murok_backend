@@ -128,7 +128,7 @@ Not yet. We're considering Docker and GitHub Actions.
 1. Build a Docker image
 To build the Dockerfile, use the following command.
 ```shell
-$ docker build -t [whateveryouwant]/murok:v0.1 . --network=host
+$ docker build -t [whateveryouwant]/murok:v0.1.0 . --network=host --no-cache
 ```
 
 ## Troubleshooting
@@ -177,7 +177,7 @@ $ sudo chown $USER:docker /var/run/docker.sock
 From WSL 1.3.10, There's a workaround for this problem. Add this setting to %userprofile%\.wslconfig.
 ```ini
 [experimental]
-autoMemoryReclaim=true
+autoMemoryReclaim=gradual
 ```
 Or you can manually shut down WSL2 after using it.
 ```powershell
