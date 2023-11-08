@@ -33,6 +33,4 @@ COPY . /usr/src/app/
 
 LABEL authors="capella87"
 
-ENTRYPOINT ["top", "-b"]
-
 CMD ["python", "manage.py"]
