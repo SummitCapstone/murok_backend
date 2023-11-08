@@ -1,0 +1,18 @@
+services:
+  db:
+    image: mariadb.10.11.5
+    volumes:
+      - ./data/db:/var/lib/mariadb/data
+    environment:
+      - MARIADB_USER
+      - MARIADB_DATABASE
+      - MARIADB_PASSWORD
+    ports:
+      - 3306:3306
+  murok:
+    build: .
+    depends_on:
+      - db
+    command: hypercorn murok_backend.asgi:application --bind [IP]:[Pxort] --reload
+
+
