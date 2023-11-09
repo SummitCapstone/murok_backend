@@ -1,3 +1,6 @@
 [submodule "murok-apis"]
 	path = murok-apis
 	url = https://github.com/SummitCapstone/murok-apis.git
+[submodule "ufw-docker"]
+	path = ufw-docker
+	url = https://github.com/chaifeng/ufw-docker.git
