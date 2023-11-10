@@ -10,8 +10,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 import json
+
+
+def docker_get_changed_filepaths(**kwargs) -> dict:
+    # Check Docker Environment by environment value.
+    is_docker_environment = os.environ.get('IS_DOCKERIZED', None)
+    if is_docker_environment is None:
+        return {}
+
+    replaced = {}
+    for key, value in kwargs.items():
+        if value is None:
+            continue
+        replaced[key] = value
+
+    return replaced
 
 
 def get_secrets(filename: str) -> dict:
@@ -22,10 +38,13 @@ def get_secrets(filename: str) -> dict:
     return secrets
 
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+DOCKER_PATHS = docker_get_changed_filepaths(dbconnection='run/secrets/dbconnection',
+                                            secrets_key='run/secrets/secrets.json')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRETS: dict = get_secrets('secrets.json')
+SECRETS: dict = get_secrets(DOCKER_PATHS.get('secrets_key', 'secrets.json'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -37,7 +56,6 @@ SECRET_KEY = SECRETS.get('SECRET_KEY', '')
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -95,7 +113,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'murok_backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -103,7 +120,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'OPTIONS': {
-            'read_default_file': './dbconnection.cnf',
+            'read_default_file': DOCKER_PATHS.get('dbconnection', './dbconnection.cnf'),
             'init_command': 'SET default_storage_engine=INNODB'
         }
     }
@@ -118,7 +135,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -138,7 +154,6 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -157,7 +172,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -168,7 +182,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -193,7 +206,7 @@ SIMPLE_JWT = {
 
 # Passwordless Auth
 PASSWORDLESS_AUTH = {
-   'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
+    'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
     'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': SECRETS.get('EMAIL_HOST_USER', ''),  # callback token을 전송하는 메일
     'PASSWORDLESS_EMAIL_SUBJECT': "무럭무럭 로그인을 위한 인증 번호입니다.",  # Email 제목
     'PASSWORDLESS_EMAIL_PLAINTEXT_MESSAGE': "무럭무럭 로그인을 위한 인증 번호 : %s",  # Email 내용
