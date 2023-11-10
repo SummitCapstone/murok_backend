@@ -1,18 +1,91 @@
+version: '3.8'
+
 services:
   db:
     image: mariadb.10.11.5
     volumes:
       - ./data/db:/var/lib/mariadb/data
     environment:
-      - MARIADB_USER
-      - MARIADB_DATABASE
-      - MARIADB_PASSWORD
+      MARIADB_USER: run/secrets/mariadb_user
+      MARIADB_DATABASE: run/secrets/mariadb_database
+      MARIADB_PASSWORD: run/secrets/mariadb_password
+      MARIADB_ROOT_PASSWORD: run/secrets/mariadb_root_password
+    secrets:
+      - mariadb_user
+      - mariadb_database
+      - mariadb_password
+      - mariadb_root_password
     ports:
-      - 3306:3306
+      - '3306:3306'
   murok:
-    build: .
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      target: runner
+    image: murok:latest
+    # You can override the command by docker-compose run murok python manage.py makemigrations
+    # This command does not use QUIC currently because of the certificate issue
+    command: hypercorn murok_backend.asgi:application --bind 0.0.0.0:8000 --reload
+    ports:
+      - '80:8000'
     depends_on:
       - db
-    command: hypercorn murok_backend.asgi:application --bind [IP]:[Pxort] --reload
+    volumes:
+      - .:/app:/usr/src/app
+      - static:/usr/src/app/static
+    secrets:
+      - secrets_key
+      - dbconnection
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 2048M
+        reservations:
+          cpus: '0.25'
+          memory: 1024M
+    restart: 'no'
+
+  initial:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      target: runner
+    image: murok:latest
+    stdin_open: true
+    tty: true
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser"
+    ports:
+      - '80:8000'
+    secrets:
+      - secrets_key
+      - dbconnection
+    environment:
+      IS_DOCKERIZED: 1
+    depends_on:
+      - db
+    volumes:
+      - .:/app:/usr/src/app
+      - static:/usr/src/app/static
 
 
+secrets:
+  secrets_key:
+    file: ./secrets.json
+    external: true
+  dbconnection:
+    file: ./dbconnection.cnf
+    external: true
+
+  mariadb_user:
+    external: true
+  mariadb_database:
+    external: true
+  mariadb_password:
+    external: true
+  mariadb_root_password:
+    external: true
+
+volumes:
+  db:
+  static:
