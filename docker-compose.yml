@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: mariadb.10.11.5
+    image: mariadb:lts
     volumes:
       - ./data/db:/var/lib/mariadb/data
     environment:
@@ -35,9 +35,17 @@ services:
     volumes:
       - .:/app:/usr/src/app
       - static:/usr/src/app/static
+    environment:
+      IS_DOCKERIZED: 1
+      DJANGO_SUPERUSER_PASSWORD: run/secrets/django_superuser_password
+      DJANGO_SUPERUSER_EMAIL: run/secrets/django_superuser_email
+      DJANGO_SUPERUSER_USERNAME: run/secrets/django_superuser_username
     secrets:
-      - secrets_key
+      - secret_keys
       - dbconnection
+      - django_superuser_password
+      - django_superuser_email
+      - django_superuser_username
     deploy:
       resources:
         limits:
@@ -72,7 +80,7 @@ services:
 
 
 secrets:
-  secrets_key:
+  secret_keys:
     file: ./secrets.json
     external: true
   dbconnection:
@@ -86,6 +94,13 @@ secrets:
   mariadb_password:
     external: true
   mariadb_root_password:
+    external: true
+
+  django_superuser_password:
+    external: true
+  django_superuser_email:
+    external: true
+  django_superuser_username:
     external: true
 
 volumes:
