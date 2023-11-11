@@ -18,18 +18,18 @@ services:
     ports:
       - '3306:3306'
   murok:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-      target: runner
-    image: murok:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   target: runner
+    image: capella87/murok:latest
     # You can override the command by docker-compose run murok python manage.py makemigrations
     # This command does not use QUIC currently because of the certificate issue
     command: >
       ./entrypoint.sh
       hypercorn murok_backend.asgi:application --bind 0.0.0.0:8000 --reload
     ports:
-      - '80:8000'
+      - '8000:8000'
     depends_on:
       - db
     volumes:
@@ -47,6 +47,7 @@ services:
       - django_superuser_email
       - django_superuser_username
     deploy:
+      replicas: 1
       resources:
         limits:
           cpus: '0.50'
@@ -54,30 +55,6 @@ services:
         reservations:
           cpus: '0.25'
           memory: 1024M
-    restart: 'no'
-
-  initial:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-      target: runner
-    image: murok:latest
-    stdin_open: true
-    tty: true
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser"
-    ports:
-      - '80:8000'
-    secrets:
-      - secrets_key
-      - dbconnection
-    environment:
-      IS_DOCKERIZED: 1
-    depends_on:
-      - db
-    volumes:
-      - .:/app:/usr/src/app
-      - static:/usr/src/app/static
-
 
 secrets:
   secret_keys:
