@@ -40,11 +40,11 @@ def get_secrets(filename: str) -> dict:
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
-DOCKER_PATHS = docker_get_changed_filepaths(dbconnection='run/secrets/dbconnection',
-                                            secrets_key='run/secrets/secrets.json')
+DOCKER_PATHS = docker_get_changed_filepaths(dbconnection='/run/secrets/dbconnection',
+                                            secret_keys='/run/secrets/secret_keys')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRETS: dict = get_secrets(DOCKER_PATHS.get('secrets_key', 'secrets.json'))
+SECRETS: dict = get_secrets(DOCKER_PATHS.get('secret_keys', 'secrets.json'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
