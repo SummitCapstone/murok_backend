@@ -6,7 +6,6 @@
 
 # CI
 .codeclimate.yml
-.travis.yml
 .taskcluster.yml
 
 # Docker
@@ -19,18 +18,13 @@ Dockerfile
 **/__pycache__/
 **/*.py[cod]
 
-# C extensions
-*.so
-
 # Distribution / packaging
 .Python
 env/
-build/
 develop-eggs/
 dist/
 downloads/
 eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -58,7 +52,6 @@ nosetests.xml
 coverage.xml
 
 # Translations
-*.mo
 *.pot
 
 # Django stuff:
@@ -90,3 +83,5 @@ venv/
 
 dbconnection.cnf
 secrets.json
+
+ufw-docker
