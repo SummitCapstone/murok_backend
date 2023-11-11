@@ -31,6 +31,8 @@ EXPOSE 8000
 
 COPY . /usr/src/app/
 
+RUN /bin/sh -c "chmod +x ./entrypoint.sh"
+
 LABEL authors="capella87"
 
-CMD ["python", "manage.py"]
+CMD ["python", "-m", "pip", "list"]

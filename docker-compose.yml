@@ -25,7 +25,9 @@ services:
     image: murok:latest
     # You can override the command by docker-compose run murok python manage.py makemigrations
     # This command does not use QUIC currently because of the certificate issue
-    command: hypercorn murok_backend.asgi:application --bind 0.0.0.0:8000 --reload
+    command: >
+      ./entrypoint.sh
+      hypercorn murok_backend.asgi:application --bind 0.0.0.0:8000 --reload
     ports:
       - '80:8000'
     depends_on:
