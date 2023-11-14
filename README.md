@@ -34,7 +34,7 @@ but we strongly recommended to use MariaDB for performance and compatibility.
 
 There's another MySQL-compatible database, Dolt, it is not tested yet.
 
-To use Docker in Windows, You must have Windows 10 20H1 (10.0.19041) or later 
+To use Docker in Windows, You must have Windows 10 21H1 (10.0.19043) or later 
 and WSL2 (Windows Subsystems for Linux 2) installed.
 See [Docker Desktop for Windows](https://docs.docker.com/docker-for-windows/install/) for more information.
 
@@ -175,11 +175,22 @@ $ sudo chown $USER:docker /var/run/docker.sock
 
 #### WSL2 Memory Leakage Problem
 From WSL 1.3.10, There's a workaround for this problem. Add this setting to %userprofile%\.wslconfig.
+You have to update WSL to 2.0 or later as of Nov 2023.
+```powershell
+$ wsl --update --pre-release
+```
+Then, configure the setting in .wslconfig. Also, you can set a limit in resource usage to prevent eating memory by WSL.
 ```ini
 [experimental]
 autoMemoryReclaim=gradual
+
+[wsl2]
+memory=4GB // Whatever you want
+swap=2000 // Whatever you want
+cpu=50 // Whatever you want
 ```
-Or you can manually shut down WSL2 after using it.
+
+And, it is highly recommended to shut down WSL2 after using it manually.
 ```powershell
 > wsl --shutdown
 ```

@@ -83,5 +83,6 @@ venv/
 
 dbconnection.cnf
 secrets.json
+traefik.yml
 
 ufw-docker

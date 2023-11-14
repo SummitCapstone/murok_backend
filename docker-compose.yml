@@ -1,10 +1,14 @@
-version: '3.8'
+version: '3.9'
+
+networks:
+  muroknet:
+    external: true
 
 services:
   db:
     image: mariadb:lts
     volumes:
-      - ./data/db:/var/lib/mariadb/data
+      - db_data:/var/lib/mariadb/data
     environment:
       MARIADB_USER: run/secrets/mariadb_user
       MARIADB_DATABASE: run/secrets/mariadb_database
@@ -15,8 +19,8 @@ services:
       - mariadb_database
       - mariadb_password
       - mariadb_root_password
-    ports:
-      - '3306:3306'
+    networks:
+      - muroknet
   murok:
     # build:
     #   context: .
@@ -25,11 +29,11 @@ services:
     image: capella87/murok:latest
     # You can override the command by docker-compose run murok python manage.py makemigrations
     # This command does not use QUIC currently because of the certificate issue
-    command: >
-      ./entrypoint.sh
-      hypercorn murok_backend.asgi:application --bind 0.0.0.0:8000 --reload
-    ports:
-      - '8000:8000'
+    command: /bin/sh -c "./entrypoint.sh"
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    networks:
+      - muroknet
     depends_on:
       - db
     volumes:
@@ -55,7 +59,60 @@ services:
         reservations:
           cpus: '0.25'
           memory: 1024M
+  traefik_whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${DOMAIN}`)"
+      - "traefik.http.routers.whoami.loadbalancer.server.port=80"
+    networks:
+      - muroknet
+  traefik_reverse_proxy:
+    image: traefik:v3.0.0-beta4 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+      - traefik_log:/var/log
+    ports:
+      - "80:80"
+      - "443:443"
+      - "3306:3306"
+      - "8000:8888"
+      - "8080:8080"
+    networks:
+      - muroknet
+    environment:
+      DUCKDNS_TOKEN: run/secrets/duckdns_token
+    secrets:
+      - duckdns_token
+    configs:
+      - source: traefikconfig
+        target: /etc/traefuk/traefik.yml
+    deploy:
+      placement:
+        constraints:
+        #  - node.labels.muroknet.murok-certificates == true
+          - node.role == manager
+          
+      # Dynamic Configurations
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=muroknet
+        - traefik.constraint-label=muroknet
+        - traefik.http.middlewares.admin-auth.basicauth.users=${TRAEFIK_USERNAME}:${TRAEFIK_HASHED_PASSWORD}
+        - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+        - traefik.http.routers.muroknet-http.rule=Host(`${DOMAIN}`)
+        - traefik.http.routers.muroknet-http.entrypoints=http
+        - traefik.http.routers.muroknet-http.middlewares=https-redirect
 
+        - traefik.http.routers.muroknet-https.rule=Host(`${DOMAIN}`)
+        - traefik.http.routers.muroknet-https.entrypoints=https
+        - traefik.http.routers.muroknet-https.tls=true
+        - traefik.http.routers.muroknet-https.service=api@internal
+        - traefik.http.routers.muroknet-https.tls.certresolver=letsencrypt
+        - traefik.http.routers.muroknet-https.middlewares=admin-auth
+        - traefik.http.services.muroknet.loadbalancer.server.port=8000
 secrets:
   secret_keys:
     file: ./secrets.json
@@ -80,6 +137,16 @@ secrets:
   django_superuser_username:
     external: true
 
+  duckdns_token:
+    external: true
+
+
 volumes:
-  db:
+  db_data:
   static:
+  letsencrypt:
+  traefik_log:
+
+configs:
+  traefikconfig:
+    file: ./traefik.yml
