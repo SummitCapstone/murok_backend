@@ -84,5 +84,8 @@ venv/
 dbconnection.cnf
 secrets.json
 traefik.yml
+bootstrap.sh
 
 ufw-docker
+scripts
+traefik_log

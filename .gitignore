@@ -176,3 +176,6 @@ cython_debug/
 
 secrets.json
 *.cnf
+scripts
+traefik.yml
+traefik_log
