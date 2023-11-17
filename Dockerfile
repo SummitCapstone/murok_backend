@@ -38,7 +38,7 @@ EXPOSE 8000
 
 COPY . /usr/src/app/
 
-RUN /bin/sh -c "chmod +x ./entrypoint.sh"
+RUN chmod +rwx ./entrypoint.sh
 
 LABEL authors="capella87"
 
