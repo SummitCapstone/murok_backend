@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID, uuid4
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, AbstractUser
@@ -23,7 +23,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     email = models.EmailField(unique=True, blank=False)
     name = models.CharField(max_length=50, default='', blank=True)
     is_active = models.BooleanField(default=True)
@@ -36,6 +36,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class RequestUserManager(models.Manager):
+
+    def create_request_user(self, uuid_str: str, user: User = None):
+        uuid = UUID(uuid_str)
+        entity = models.Model(id=uuid, last_request_date=None, first_request_date=None, registered_user=user)
+
+        return entity
 
 
 class RequestUser(models.Model):
