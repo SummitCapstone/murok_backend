@@ -1,6 +1,6 @@
 import io
 import uuid
-
+from unittest.mock import patch
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import TestCase
 from rest_framework.test import APITestCase, RequestsClient, APIRequestFactory, APIClient
@@ -57,11 +57,15 @@ class GuestRequestTestCase(APITestCase):
         self.crop_category = 'STRAWBERRY'
         self.view = UserRequestDiagnosis.as_view()
 
-    def test_guest_request_diagnosis(self):
+    @patch('diagnosis.models.UserDiagnosisRequest.picture.field.storage.save')
+    def test_guest_request_diagnosis(self, mock_save):
         """
         Test whether the guest user can request diagnosis or not.
         :return:
         """
+
+        mock_save.return_value = 'static/uploads/blob/test.jpg'
+
         # Create a request
         guest_diagnosis_request = self.factory.post('/diagnosis/request/',
                                     {
