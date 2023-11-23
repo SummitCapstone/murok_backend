@@ -94,7 +94,7 @@ class UserRequestDiagnosis(APIView):
         except RequestUser.DoesNotExist:
             # If the request user does not exist, create a new request user.
             if isinstance(user, User):
-                request_user = RequestUser.objects.create(id=request_user_uuid, user=user)
+                request_user = RequestUser.objects.create(id=request_user_uuid, registered_user=user)
             else:
                 request_user = RequestUser.objects.create(id=request_user_uuid)
 
