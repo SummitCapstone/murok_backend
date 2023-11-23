@@ -1,3 +1,4 @@
+from types import NoneType
 from uuid import UUID, uuid4
 
 from django.db import models
@@ -40,9 +41,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class RequestUserManager(models.Manager):
 
-    def create_request_user(self, uuid_str: str, user: User = None):
-        uuid = UUID(uuid_str)
-        entity = models.Model(id=uuid, last_request_date=None, first_request_date=None, registered_user=user)
+    def create_request_user(self, uuid: UUID, user: User or NoneType = None):
+        entity = self.model(id=uuid, registered_user=user)
 
         return entity
 
@@ -53,3 +53,8 @@ class RequestUser(models.Model):
     first_request_date = models.DateTimeField(auto_now_add=True, editable=False)
     registered_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='registered_user', default=None,
                                         null=False)
+
+    objects = RequestUserManager()
+
+    def __str__(self):
+        return self.id

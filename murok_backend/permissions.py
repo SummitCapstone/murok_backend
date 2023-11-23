@@ -7,7 +7,10 @@ class IsValidUser(BasePermission):
     def has_permission(self, request: Request, view) -> bool:
         # Check X-Request-User-Id header and validate it
         try:
-            request_user_uuid = UUID(request.headers.get('X-Request-User-Id', None))
+            val = request.META.get('HTTP_X_REQUEST_USER_ID', None)
+            if val is None:
+                raise ValueError
+            request_user_uuid = UUID(val)
         except ValueError:
             return False
         else:
