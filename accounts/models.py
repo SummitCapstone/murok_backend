@@ -39,22 +39,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class RequestUserManager(models.Manager):
-
-    def create_request_user(self, uuid: UUID, user: User or NoneType = None):
-        entity = self.model(id=uuid, registered_user=user)
-
-        return entity
-
-
 class RequestUser(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     last_request_date = models.DateTimeField(auto_now=True)
     first_request_date = models.DateTimeField(auto_now_add=True, editable=False)
-    registered_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='registered_user', default=None,
-                                        null=False)
-
-    objects = RequestUserManager()
+    registered_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='registered_user', null=True)
 
     def __str__(self):
         return self.id

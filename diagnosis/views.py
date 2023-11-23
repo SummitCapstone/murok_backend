@@ -59,12 +59,12 @@ class UserRequestDiagnosis(APIView):
             request_uuid = uuid.UUID(request_id)
 
             # Check whether the request_id is already registered or not.
-            if UserDiagnosisRequest.objects.filter(request_uuid=request_uuid).exists():
+            if UserDiagnosisRequest.objects.filter(id=request_uuid).exists():
                 # Not in Debug Mode, Raise an exception.
                 if not settings.DEBUG:
                     raise ValueError
                 else:
-                    UserDiagnosisRequest.objects.filter(request_uuid=request_uuid).delete()
+                    UserDiagnosisRequest.objects.filter(id=request_uuid).delete()
         except ValueError:
             return Response({'code': 400, 'message': 'Valid Request ID is not provided.'}, status=400)
 
@@ -74,7 +74,7 @@ class UserRequestDiagnosis(APIView):
             request_user_uuid = request.META.get('HTTP_X_REQUEST_USER_ID', None)
             if request_user_uuid is None:
                 raise ValueError
-            request_user_uuid = uuid.UUID(request_user_uuid, version=400)
+            request_user_uuid_validated = uuid.UUID(request_user_uuid, version=4)
         except ValueError as err:
             traceback.print_exc()
             return Response({'code': 400, 'message': 'Valid Request user\'s UUID is not provided.'}, status=400)
@@ -90,21 +90,20 @@ class UserRequestDiagnosis(APIView):
         # Find a request user in RequestUser table
         try:
             request_user = RequestUser.objects.get(id=request_user_uuid)
+            request_user.save()
         except RequestUser.DoesNotExist:
             # If the request user does not exist, create a new request user.
             if isinstance(user, User):
-                request_user = RequestUser.objects.create_user(id=request_user_uuid, user=user)
+                request_user = RequestUser.objects.create(id=request_user_uuid, user=user)
             else:
-                request_user = RequestUser.objects.create_user(id=request_user_uuid)
-        finally:
-            # If the request user exists, update last_request_date field.
-            request_user.save()
+                request_user = RequestUser.objects.create(id=request_user_uuid)
 
-        request.data['id'] = request_uuid
-        request.data['request_user_id'] = request_user.id
+        final_data = request.data.copy()
+        final_data['id'] = request_uuid
+        final_data['request_user_id'] = request_user.id
 
         # Save the request to UserDiagnosisRequest table
-        serializer = UserDiagnosisRequestSerializer(data=request.data)
+        serializer = UserDiagnosisRequestSerializer(data=final_data)
 
         # This below code will be replaced to request to ML server soon.
         if serializer.is_valid():
@@ -112,5 +111,5 @@ class UserRequestDiagnosis(APIView):
             return Response({'code': 200, 'message': 'Your request is successfully sent. Wait for seconds!'}
                             , status=200)
         else:
-            request.user.delete()
+            request_user.delete()
             return Response({'code': 500, 'message': 'Internal Server Error.'}, status=500)

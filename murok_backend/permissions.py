@@ -8,6 +8,7 @@ class IsValidUser(BasePermission):
         # Check X-Request-User-Id header and validate it
         try:
             val = request.META.get('HTTP_X_REQUEST_USER_ID', None)
+
             if val is None:
                 raise ValueError
             request_user_uuid = UUID(val)
