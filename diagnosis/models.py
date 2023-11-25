@@ -3,13 +3,15 @@ from django.db import models
 from accounts.models import User, RequestUser
 
 
+class CropCategory(models.TextChoices):
+    UNKNOWN = 'UNKNOWN'
+    STRAWBERRY = 'STRAWBERRY'
+    TOMATO = 'TOMATO'
+    PEPPER = 'PEPPER'
+    CUCUMBER = 'CUCUMBER'
+
+
 class UserDiagnosisRequest(models.Model):
-    class CropCategory(models.TextChoices):
-        UNKNOWN = 'UNKNOWN'
-        STRAWBERRY = 'STRAWBERRY'
-        TOMATO = 'TOMATO'
-        PEPPER = 'PEPPER'
-        CUCUMBER = 'CUCUMBER'
 
     id = models.UUIDField(primary_key=True)
     picture = models.ImageField(upload_to='static/uploads/blob/%Y/%m/%d/',
