@@ -1,0 +1,3 @@
+# Set text newline to LF when the file extension is .sh
+*.sh text eol=lf
+
