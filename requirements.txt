@@ -46,6 +46,7 @@ rpds-py==0.13.1
 referencing==0.31.0
 requests==2.31.0
 simplejson==3.19.2
+six==1.16.0
 tzdata==2023.3
 uritemplate==4.1.1
 urllib3==2.1.0
