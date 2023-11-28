@@ -61,6 +61,22 @@ class UserDiagnosisResult(models.Model):
     )
     # NOT_YET_IMPLEMENTED
     # crop_status_data
+    '''
+    "rank_counts": 2,
+    "crop_status_possibility_rank": [
+        {
+            "rank": 1
+            "status": "HEALTHY",
+            "probability": "80.2"
+        },
+        {
+            "rank": 2,
+            "state": "STRAWBERRY_LEAF_SCORCH",
+            "probability": "19.8"
+        }
+    ]
+    '''
+
 
     def clean(self):
         super().clean()
@@ -69,7 +85,7 @@ class UserDiagnosisResult(models.Model):
             if not isinstance(rank_counts, int) or rank_counts == 0:
                 raise ValidationError('Rank_counts must be a positive integer')
 
-            ranking =  self.probability_ranking.get('ranking', None)
+            ranking = self.probability_ranking.get('ranking', None)
             if ranking is None or len(ranking) == 0:
                 raise ValidationError('Ranking must not be empty')
             probability_sum = 0.0
