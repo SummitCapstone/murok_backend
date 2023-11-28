@@ -7,6 +7,8 @@
 * Python 3.11 or later
 * Django REST Framework 3.14.0 or later
 * MariaDB 10.11.x (LTS) or later (Tested in 11.2.x with problems. See troubleshooting)
+* RabbitMQ 3.12.x or later
+* Erlang 26.1.x or later
 * Certbot 1.21.0 or later (For HTTPS certificates)
 * Other requirements are in requirements.txt
 
