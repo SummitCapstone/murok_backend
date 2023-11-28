@@ -44,6 +44,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts',
     'diagnosis',
+    'reports',
 
     'django.contrib.admin',
     'django.contrib.auth',
