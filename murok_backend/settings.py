@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import json
+from .pagination import UserReportListPagination
 
 
 def get_secrets(filename: str) -> dict:
@@ -128,8 +129,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.TemplateHTMLRenderer'
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'DEFAULT_PAGINATION_CLASS': 'UserReportListPagination',
     'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
     # 'EXCEPTION_HANDLER': 'rest_framework_simplejwt.exceptions.api_settings.SIMPLE_JWT_RESPONSE_ERROR_HANDLER',
 }
