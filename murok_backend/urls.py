@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('accounts.urls')),
     path('diagnosis/', include('diagnosis.urls')),
+    path('crop_api/', include('crop_api.urls')),
 ]

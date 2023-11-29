@@ -32,7 +32,7 @@ SECRETS: dict = get_secrets('secrets.json')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRETS.get('SECRET_KEY', '')
-
+API_KEY = SECRETS.get('API_KEY', '')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -44,6 +44,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'accounts',
     'diagnosis',
+    'crop_api',
 
     'django.contrib.admin',
     'django.contrib.auth',
