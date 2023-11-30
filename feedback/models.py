@@ -2,7 +2,7 @@ from django.db import models
 from accounts.models import User, RequestUser
 
 
-class UserFeedbackModel(models.Model):
+class UserFeedback(models.Model):
     id = models.IntegerField(primary_key=True)
     # result_id = models.ForeignKey(, null=True)
     user_id = models.ForeignKey(User,
@@ -14,7 +14,7 @@ class UserFeedbackModel(models.Model):
     modified_on = models.DateTimeField(auto_now=True)
 
 
-class UserPictureListModel(models.Model):
+class UserPictureList(models.Model):
     id = models.IntegerField(primary_key=True)
     # static file
     picture = models.ImageField()
@@ -23,7 +23,7 @@ class UserPictureListModel(models.Model):
                                  null=True)
 
 
-class AnswerFeedbackModel(models.Model):
+class AnswerFeedback(models.Model):
     id = models.IntegerField(primary_key=True)
     feedback = models.ForeignKey(null=True)
     title = models.CharField(max_length=100)
