@@ -122,12 +122,12 @@ class UserDiagnosisResult(models.Model):
                     raise ValidationError('State must be a string')
                 elif state not in CropStatus.values:
                     raise ValidationError('Invalid state value')
-                if not isinstance(probability, float) or probability < 0.0 or probability > 100.0:
-                    raise ValidationError('Probability must be a float between 0.0 and 100.0')
-                probability_sum += probability
+                # if not isinstance(probability, float) or probability < 0.0 or probability > 100.0:
+                #     raise ValidationError('Probability must be a float between 0.0 and 100.0')
+                # probability_sum += probability
             # AI Server must match the sum of probabilities to 100.0 prior to processing in this server
-            if int(probability_sum) != 100:
-                raise ValidationError('Sum of probabilities must be 100.0')
+            # if int(probability_sum) != 100:
+            #     raise ValidationError('Sum of probabilities must be 100.0')
 
         except AttributeError:
             raise ValidationError('This ranking structure is invalid')
