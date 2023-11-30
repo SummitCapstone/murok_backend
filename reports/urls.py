@@ -5,7 +5,9 @@ from rest_framework_simplejwt.views import (
 
     TokenRefreshView,
 )
+from .views import UserReportListView, UserReportDetailView
 
 urlpatterns = [
-    # 'PASSWORDLESS_AUTH_PREFIX': 'auth/'
+    path('reports/', UserReportListView.as_view()),
+    path('reports/<str:pk>/', UserReportDetailView.as_view()),
 ]
