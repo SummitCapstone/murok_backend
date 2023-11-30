@@ -1,6 +1,7 @@
 import uuid
 from enum import Enum
 
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 from django.shortcuts import render
 from rest_framework.request import Request
@@ -14,6 +15,7 @@ from reports.models import UserDiagnosisResult, CropStatus
 from .serializers import UserReportSerializer
 from murok_backend.pagination import UserReportListPagination
 from diagnosis.models import UserDiagnosisRequest, CropCategory
+from rest_framework.pagination import PageNumberPagination
 
 
 class SortEnum(Enum):
@@ -55,34 +57,41 @@ class UserReportListAdminView(APIView):
     authentication_classes = (JWTAuthentication,)
     pagination_class = UserReportListPagination
 '''
-
 class UserReportListView(APIView):
-    permission_classes = (IsAdminUser, IsAuthenticated)
+    permission_classes = (IsValidUser,)
     authentication_classes = (JWTAuthentication,)
     pagination_class = UserReportListPagination
 
-    def get(self, request: Request, result_id: str):
+    class UserReportListPagination(PageNumberPagination):
+        page_size = 10
+        page_size_query_param = 'page_size'
+        max_page_size = 100
 
+    def get(self, request: Request):
         # Parse parameters
-        page = request.GET.get('page', 1)
         sort = request.GET.get('sort', 'default')
         crop = request.GET.get('crop_category', None)
         result = request.GET.get('result', 'abnormal')
-        # start_date = request.GET.get('start_date', None)
-        # end_date = request.GET.get('end_date', None)
 
-        # Sort function
-
-        targets = UserDiagnosisResult.objects.filter(request_user_id__registered_user=request.user)
-
-        targets = apply_criteria(targets, sort, crop, result)
-
-        # Pagination
-
-
+        try:
+            user_uuid = request.META.get('HTTP_X_REQUEST_USER_ID', None)
+            user_uuid = uuid.UUID(user_uuid, version=4)
+        except ValueError:
+            return Response({'code': 400, 'message': 'Invalid Request User ID'}, status=400)
+        else:
+            # Filter targets
+            targets = UserDiagnosisResult.objects.filter(request_user_id__id=str(user_uuid))
+            targets = apply_criteria(targets, sort, crop, result)
 
 
-        return Response({'code': 200, 'message': 'OK'}, status=200)
+        # Paginate results
+        paginator = self.pagination_class()
+        paginated_targets = paginator.paginate_queryset(targets, request)
+
+        # Serialize results
+        serializer = UserReportSerializer(paginated_targets, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
 
 
 class UserReportDetailView(APIView):

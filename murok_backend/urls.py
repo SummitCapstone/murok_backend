@@ -25,5 +25,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('accounts.urls')),
     path('diagnosis/', include('diagnosis.urls')),
-    path("robots.txt", robots_txt),
+    path('reports/', include('reports.urls')),
+    path('robots.txt', robots_txt),
 ]

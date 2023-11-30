@@ -8,6 +8,6 @@ from rest_framework_simplejwt.views import (
 from .views import UserReportListView, UserReportDetailView
 
 urlpatterns = [
-    path('reports/', UserReportListView.as_view()),
-    path('reports/<str:pk>/', UserReportDetailView.as_view()),
+    path('', UserReportListView.as_view()),
+    path('<str:pk>/', UserReportDetailView.as_view()),
 ]
