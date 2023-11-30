@@ -86,10 +86,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'murok_backend.urls'
 
-CORS_ALLOWED_ORIGINS = [
-    '*',
-]
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
