@@ -8,22 +8,53 @@ from diagnosis.models import CropCategory, UserDiagnosisRequest
 
 
 class CropStatus(models.TextChoices):
-    UNKNOWN = 'UNKNOWN', '알 수 없음'
-    HEALTHY = 'HEALTHY', '정상'
-    ERROR = 'ERROR', '오류'
+    UNKNOWN = '알 수 없음'
+    HEALTHY = '정상'
+    ERROR = '오류'
 
     # Tomato states
-    GRAY_MOLD = 'GRAY_MOLD', '잿빛곰팡이병'
-    POWDERY_MILDEW = 'POWDERY_MILDEW', '흰가루병'
-    DOWNY_MILDEW = 'DOWNY_MILDEW', '노균병'
-    ANTHRACNOSE = 'ANTHRACNOSE', '탄저병'
+    GRAY_MOLD = '잿빛곰팡이병'
+    POWDERY_MILDEW = '흰가루병'
+    DOWNY_MILDEW = '노균병'
+    ANTHRACNOSE = '탄저병'
 
-    MACRONUTRIENT_DEFICIENCY_NITROGEN = 'MACRONUTRIENT_DEFICIENCY_NITROGEN', '다량원소결핍(N)'
-    MACRONUTRIENT_DEFICIENCY_PHOSPHORUS = 'MACRONUTRIENT_DEFICIENCY_PHOSPHORUS', '다량원소결핍(P)'
-    MACRONUTRIENT_DEFICIENCY_POTASSIUM = 'MACRONUTRIENT_DEFICIENCY_POTASSIUM', '다량원소결핍(K)'
-    DEHISCENCE = 'DEHISCENCE', '열과'
-    COLD_INJURY = 'COLD_INJURY', '냉해피해'
-    CALCIUM_DEFICIENCY_ = 'CALCIUM_DEFICIENCY', '칼슘결핍'
+    MACRONUTRIENT_DEFICIENCY_NITROGEN = '다량원소결핍(N)'
+    MACRONUTRIENT_DEFICIENCY_PHOSPHORUS = '다량원소결핍(P)'
+    MACRONUTRIENT_DEFICIENCY_POTASSIUM = '다량원소결핍(K)'
+    DEHISCENCE = '열과'
+    COLD_INJURY = '냉해피해'
+    CALCIUM_DEFICIENCY_ = '칼슘결핍'
+
+
+def translate_crop_status(crop_status: str) -> str:
+
+    match (crop_status):
+        case '알 수 없음':
+            return 'UNKNOWN'
+        case '정상':
+            return 'HEALTHY'
+        case '오류':
+            return 'ERROR'
+        case '잿빛곰팡이병':
+            return 'GRAY_MOLD'
+        case '흰가루병':
+            return 'POWDERY_MILDEW'
+        case '노균병':
+            return 'DOWNY_MILDEW'
+        case '탄저병':
+            return 'ANTHRACNOSE'
+        case '다량원소결핍(N)':
+            return 'MACRONUTRIENT_DEFICIENCY_NITROGEN'
+        case '다량원소결핍(P)':
+            return 'MACRONUTRIENT_DEFICIENCY_PHOSPHORUS'
+        case '다량원소결핍(K)':
+            return 'MACRONUTRIENT_DEFICIENCY_POTASSIUM'
+        case '열과':
+            return 'DEHISCENCE'
+        case '냉해피해':
+            return 'COLD_INJURY'
+        case '칼슘결핍':
+            return 'CALCIUM_DEFICIENCY_'
 
 
 class UserDiagnosisResult(models.Model):

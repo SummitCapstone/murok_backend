@@ -21,7 +21,7 @@ from murok_backend.permissions import IsValidUser
 from murok_backend.settings import BASE_DIR, AI_SERVER_URL
 from .models import CropCategory
 # from .tasks import send_diagnosis_data_to_aiserver
-from reports.models import UserDiagnosisResult
+from reports.models import UserDiagnosisResult, CropStatus, translate_crop_status
 
 import uuid
 
@@ -145,16 +145,19 @@ def send_diagnosis_data_to_aiserver_non_rabbitmq(request_entity: UserDiagnosisRe
         # Get an absolute path of the image file
 
         file_path = BASE_DIR / diagnosis_original_request.picture.path
-
-        str_data = {'crop_type': str(diagnosis_original_request.crop_category)}
+        # Decapitalize letter
+        crop_category = crop_category.lower()
+        str_data = {'crop_type': crop_category}
         # Send the image file to the AI server
         with open(file_path, 'rb') as f:
-            image_file = {'image': (file_path, f)}
+            image_file = {'image': (str(file_path), f)}
             diagnosis_result = requests.post(AI_SERVER_URL, files=image_file, data=str_data)
 
+        print(diagnosis_result.status_code)
+        print(diagnosis_result)
         diagnosis_result: requests.Response
         disease_ranking = diagnosis_result.json()['top_diseases']
-        disease_possibility_ranking = diagnosis_result.json()['probability_ranking']
+        disease_possibility_ranking = diagnosis_result.json()['top_probabilities']
 
         # Serialize the ranking data
         ranking, crop_stat = serialize_ranking(disease_possibility_ranking, disease_ranking)
@@ -169,7 +172,9 @@ def send_diagnosis_data_to_aiserver_non_rabbitmq(request_entity: UserDiagnosisRe
             probability_ranking=ranking
         )
     except Exception:
-        raise AIServerError
+        # Print stack trace
+        traceback.print_exc()
+        raise AIServerError('AI Server Error')
     else:
         return result
     # Send the image to AI server.
@@ -204,5 +209,7 @@ def serialize_ranking(possibility_ranking: list[float], disease_ranking: list[st
         }
         ranking.append(entity)
 
+    translated_disease = translate_crop_status(disease_ranking[0])
+
     # Convert disease_ranking[0] to CropCategory
-    return ranking, CropCategory[disease_ranking[0]]
+    return ranking, CropStatus[translated_disease]
