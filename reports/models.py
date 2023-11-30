@@ -29,8 +29,7 @@ class CropStatus(models.TextChoices):
 class UserDiagnosisResult(models.Model):
 
     id = models.UUIDField(primary_key=True,
-                          editable=False,
-                          default=uuid.uuid4().hex)
+                          editable=False)
     request_user_id = models.ForeignKey(RequestUser,
                                         on_delete=models.SET_NULL,
                                         null=True)
@@ -66,7 +65,6 @@ class UserDiagnosisResult(models.Model):
         }
     ]
     '''
-
 
     def clean(self):
         super().clean()
