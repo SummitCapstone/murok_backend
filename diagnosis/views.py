@@ -4,6 +4,7 @@ from types import NoneType
 from django.shortcuts import render
 from pathlib import Path
 
+import requests
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -17,6 +18,10 @@ from diagnosis.serializers import UserDiagnosisRequestSerializer
 from accounts.models import User, RequestUser
 from murok_backend import settings
 from murok_backend.permissions import IsValidUser
+from murok_backend.settings import BASE_DIR, AI_SERVER_URL
+from .models import CropCategory
+# from .tasks import send_diagnosis_data_to_aiserver
+from reports.models import UserDiagnosisResult
 
 import uuid
 
@@ -33,6 +38,15 @@ import uuid
 1-1-1. If the UUID is valid, check whether the UUID is already registered or not.
 
 '''
+
+
+class AIServerError(Exception):
+    def __init__(self, message: str, extra_info: dict = None):
+        super().__init__()
+        self.extra_info = extra_info
+
+    def __str__(self):
+        return f'{super().__str__()} (AI Server information: {self.extra_info})'
 
 
 class UserRequestDiagnosis(APIView):
@@ -67,7 +81,6 @@ class UserRequestDiagnosis(APIView):
                     UserDiagnosisRequest.objects.filter(id=request_uuid).delete()
         except ValueError:
             return Response({'code': 400, 'message': 'Valid Request ID is not provided.'}, status=400)
-
 
         # Extract request_user_uuid from request header
         try:
@@ -104,12 +117,92 @@ class UserRequestDiagnosis(APIView):
 
         # Save the request to UserDiagnosisRequest table
         serializer = UserDiagnosisRequestSerializer(data=final_data)
+        entity = None
 
         # This below code will be replaced to request to ML server soon.
         if serializer.is_valid():
-            serializer.save()
-            return Response({'code': 200, 'message': 'Your request is successfully sent. Wait for seconds!'}
-                            , status=200)
+            entity = serializer.save()
+
+            # Request a task to RabbitMQ to send the image to AI server.
+            # send_diagnosis_data_to_aiserver.send(request_uuid, request_user_uuid, serializer.validated_data['crop_category'])
+            try:
+                result_entity = send_diagnosis_data_to_aiserver_non_rabbitmq(entity,
+                                                                             serializer.validated_data['crop_category'])
+            except AIServerError:
+                entity.delete()
+                return Response({'code': 500, 'message': 'Internal Server Error.'}, status=500)
+
+            return Response({'code': 200, 'result_url': f'/diagnosis/result/{request_uuid.hex}'}, status=200)
         else:
             request_user.delete()
             return Response({'code': 500, 'message': 'Internal Server Error.'}, status=500)
+
+
+def send_diagnosis_data_to_aiserver_non_rabbitmq(request_entity: UserDiagnosisRequest,
+                                                 crop_category: CropCategory) -> UserDiagnosisResult:
+    try:
+        diagnosis_original_request = request_entity
+        # Get an absolute path of the image file
+
+        file_path = BASE_DIR / diagnosis_original_request.picture.path
+
+        str_data = {'crop_type': str(diagnosis_original_request.crop_category)}
+        # Send the image file to the AI server
+        with open(file_path, 'rb') as f:
+            image_file = {'image': (file_path, f)}
+            diagnosis_result = requests.post(AI_SERVER_URL, files=image_file, data=str_data)
+
+        diagnosis_result: requests.Response
+        disease_ranking = diagnosis_result.json()['top_diseases']
+        disease_possibility_ranking = diagnosis_result.json()['probability_ranking']
+
+        # Serialize the ranking data
+        ranking, crop_stat = serialize_ranking(disease_possibility_ranking, disease_ranking)
+
+        # Make a new entity of UserDiagnosisResult
+        result = UserDiagnosisResult.objects.create(
+            id=uuid.uuid4().hex,
+            request_user_id=RequestUser.objects.get(id=str(diagnosis_original_request.request_user_id.id)),
+            request_id=UserDiagnosisRequest.objects.get(id=str(diagnosis_original_request.id)),
+            crop_category=crop_category,
+            crop_status=crop_stat,
+            probability_ranking=ranking
+        )
+    except Exception:
+        raise AIServerError
+    else:
+        return result
+    # Send the image to AI server.
+
+
+def serialize_ranking(possibility_ranking: list[float], disease_ranking: list[str]) -> tuple[list[dict[str, int | str]], CropCategory or str]:
+    """
+    Serialize the ranking data to JSON format.
+    :param possibility_ranking: Possibility ranking data
+    :param disease_ranking: Disease ranking data
+    :return: Serialized ranking data
+    """
+    # Make a list of dictionaries
+    # [
+    #     {
+    #         "rank": 1,
+    #         "state": "HEALTHY",
+    #         "probability": "80.2"
+    #     },
+    #     {
+    #         "rank": 2,
+    #         "state": "STRAWBERRY_LEAF_SCORCH",
+    #         "probability": "19.8"
+    #     }
+    # ]
+    ranking = []
+    for i in range(len(possibility_ranking)):
+        entity = {
+            'rank': i + 1,
+            'state': disease_ranking[i],
+            'probability': str(possibility_ranking[i])
+        }
+        ranking.append(entity)
+
+    # Convert disease_ranking[0] to CropCategory
+    return ranking, CropCategory[disease_ranking[0]]
