@@ -68,6 +68,9 @@ INSTALLED_APPS = [
 
 ]
 
+AI_SERVER_URL = SECRETS.get('AI_SERVER_URL', None)
+
+
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
