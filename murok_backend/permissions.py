@@ -50,41 +50,26 @@ class IsRequestUser(BasePermission):
             request_user = RequestUser.objects.get(id=str(request_user_uuid))
             
 
-            # Get Request_id
-            request_id = view.kwargs.get('request_id', None)
-            report_id = view.kwargs.get('report_id', None)
+            # Get Report_id
+            report_id = view.kwargs.get('result_id', None)
 
-            target_request_user_id = None
-
-            # In case of requesting a report
-            if request_id is None and report_id is not None:
-                request_id = UserDiagnosisResult.objects.get(id=report_id).request_id.id
-                # Message structure of Http404 should be changed..
-                target_request_user_id = get_object_or_404(UserDiagnosisResult, id=request_id).request_user_id.id
-            # In case of requesting a 'request' entity for review.
-            elif request_id is not None and report_id is None:
-                target_request_user_id = get_object_or_404(UserDiagnosisRequest, id=request_id).request_user_id.id
-            else:
-                raise ValueError
-            
-            if target_request_user_id is None:
-                raise ValueError
-            
-            if request_user.id == target_request_user_id:
-                view.request_user = request_user
-                return True
-            
-            # Check whether the user is a registered user or not.
-            registered_user = request.user
-            if not isinstance(registered_user, User):
+            if report_id is None:
                 return False
-            
-            user_side_user_id = RequestUser.objects.get(id=str(request_user.id),
-                                                        registered_user__id=str(registered_user.id)).id
-            server_side_user_id = RequestUser.objects.get(id=str(target_request_user_id),
-                                                          registered_user__id=str(registered_user.id)).id
 
-            return user_side_user_id == server_side_user_id
+            report_id = UUID(report_id, version=4)
+            request_id = UserDiagnosisResult.objects.get(id=report_id).request_id.id
+
+
+            # TODO: Revert to also verify registered user.
+            # Check whether the report's original request user is the same as the request user.
+            report = UserDiagnosisResult.objects.get(id=report_id)
+
+            if str(report.request_user_id.id) == str(request_user.id):
+                return True
+            # If not matched, check whether the user is registered or not.
+            # That's because the database could also save multiple request_user_id per one registered user's id
+            # (e.g. the user requested diagnosis as a guest and then registered as a member)
+            return False
 
             # Check whether the UserDiagnosisRequest entity 
         except ValueError:
