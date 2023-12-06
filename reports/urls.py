@@ -9,5 +9,5 @@ from .views import UserReportListView, UserReportDetailView
 
 urlpatterns = [
     path('', UserReportListView.as_view()),
-    path('<str:pk>/', UserReportDetailView.as_view()),
+    path('<str:result_id>/', UserReportDetailView.as_view()),
 ]

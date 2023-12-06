@@ -12,7 +12,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from murok_backend.permissions import IsValidUser, IsRequestUser
 from reports.models import UserDiagnosisResult, CropStatus
-from .serializers import UserReportSerializer
+from .serializers import UserReportSerializer, UserReportListSerializer
 from murok_backend.pagination import UserReportListPagination
 from diagnosis.models import UserDiagnosisRequest, CropCategory
 from rest_framework.pagination import PageNumberPagination
@@ -44,8 +44,8 @@ def apply_criteria(targets: QuerySet, sort: SortEnum = SortEnum.DEFAULT,
 
     match result:
         case ResultStateEnum.ABNORMAL:
-            targets = targets.exclude(crop_status=CropStatus.HEALTHY)
-        case _:
+            targets = targets.exclude(crop_status=CropStatus.UNHEALTHY)
+        case ResultStateEnum.NORMAL:
             targets = targets.filter(crop_status=CropStatus.HEALTHY)
 
     return targets
@@ -57,6 +57,8 @@ class UserReportListAdminView(APIView):
     authentication_classes = (JWTAuthentication,)
     pagination_class = UserReportListPagination
 '''
+
+
 class UserReportListView(APIView):
     permission_classes = (IsValidUser,)
     authentication_classes = (JWTAuthentication,)
@@ -80,7 +82,7 @@ class UserReportListView(APIView):
             return Response({'code': 400, 'message': 'Invalid Request User ID'}, status=400)
         else:
             # Filter targets
-            targets = UserDiagnosisResult.objects.filter(request_user_id__id=str(user_uuid))
+            targets = UserDiagnosisResult.objects.filter(request_user_id=str(user_uuid))
             targets = apply_criteria(targets, sort, crop, result)
 
 
@@ -89,13 +91,14 @@ class UserReportListView(APIView):
         paginated_targets = paginator.paginate_queryset(targets, request)
 
         # Serialize results
-        serializer = UserReportSerializer(paginated_targets, many=True)
+        serializer = UserReportListSerializer(paginated_targets, many=True)
 
         return paginator.get_paginated_response(serializer.data)
 
 
 class UserReportDetailView(APIView):
-    permission_classes = (IsAdminUser, IsRequestUser)
+    # permission_classes = (IsAdminUser, IsRequestUser)
+    permission_classes = (IsRequestUser,)
     authentication_classes = (JWTAuthentication,)
 
     def get(self, request: Request, result_id: str) -> Response:
@@ -108,12 +111,9 @@ class UserReportDetailView(APIView):
 
         report = UserDiagnosisResult.objects.get(id=str(result_uuid))
 
-        serializer = UserReportSerializer(data=report)
+        serializer = UserReportSerializer(report)
 
-        if serializer.is_valid():
-            return Response(serializer.data, status=200)
-        else:
-            return Response({'code': 500, 'message': 'Internal Server Error'}, status=500)
+        return Response(serializer.data, status=200)
 
     def delete(self, request: Request, result_id: str) -> Response:
 
