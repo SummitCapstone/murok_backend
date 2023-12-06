@@ -1,5 +1,7 @@
 from uuid import UUID
 from typing import Any
+
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.request import Request
 from rest_framework.permissions import BasePermission
 
@@ -59,8 +61,6 @@ class IsRequestUser(BasePermission):
             report_id = UUID(report_id, version=4)
             request_id = UserDiagnosisResult.objects.get(id=report_id).request_id.id
 
-
-            # TODO: Revert to also verify registered user.
             # Check whether the report's original request user is the same as the request user.
             report = UserDiagnosisResult.objects.get(id=report_id)
 
@@ -69,6 +69,9 @@ class IsRequestUser(BasePermission):
             # If not matched, check whether the user is registered or not.
             # That's because the database could also save multiple request_user_id per one registered user's id
             # (e.g. the user requested diagnosis as a guest and then registered as a member)
+            if not isinstance(request.user, AnonymousUser):
+                return True if report.request_user_id.registered_user == request.user else False
+
             return False
 
             # Check whether the UserDiagnosisRequest entity 
