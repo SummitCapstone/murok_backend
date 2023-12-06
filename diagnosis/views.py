@@ -132,7 +132,7 @@ class UserRequestDiagnosis(APIView):
                 entity.delete()
                 return Response({'code': 500, 'message': 'Internal Server Error.'}, status=500)
 
-            return Response({'code': 200, 'result_url': f'/reports/{result_entity.id.hex}'}, status=200)
+            return Response({'code': 200, 'result_url': f'/reports/{result_entity.id}'}, status=200)
         else:
             request_user.delete()
             return Response({'code': 500, 'message': 'Internal Server Error.'}, status=500)
