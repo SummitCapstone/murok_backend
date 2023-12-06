@@ -11,6 +11,7 @@ from uuid import uuid4, UUID
 from PIL import Image
 import numpy as np
 import tempfile
+from datetime import datetime
 
 from diagnosis.models import UserDiagnosisRequest
 from diagnosis.views import UserRequestDiagnosis
@@ -64,7 +65,15 @@ class GuestRequestTestCase(APITestCase):
         :return:
         """
 
-        mock_save.return_value = 'static/uploads/blob/test.jpg'
+        # Get a date
+        now = datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+
+        mock_save.return_value = f'static/uploads/blob/{year}/{month}/{day}/IMG_3480.jpeg'
+        # How to mock a file upload with on memory file?
+        # https://stackoverflow.com/questions/35803098/how-to-mock-a-file-upload-with-on-memory-file
 
         # Create a request
         guest_diagnosis_request = self.factory.post('/diagnosis/request/',

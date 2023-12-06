@@ -9,3 +9,6 @@ insert_final_newline = true
 [*.{json,yaml,yml,jsonc,toml,md,mdx}]
 insert_final_newline = false
 indent_size = 2
+
+[*.sh]
+end_of_line = lf

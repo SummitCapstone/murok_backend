@@ -17,9 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from murok_backend.views import robots_txt
+
+
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('admin/', admin.site.urls),
     path('user/', include('accounts.urls')),
     path('diagnosis/', include('diagnosis.urls')),
+    path('reports/', include('reports.urls')),
+    path('robots.txt', robots_txt),
 ]
