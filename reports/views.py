@@ -73,7 +73,7 @@ class UserReportListView(APIView):
         # Parse parameters
         sort = request.GET.get('sort', 'default')
         crop = request.GET.get('crop_category', None)
-        result = request.GET.get('result', 'abnormal')
+        result = request.GET.get('result', 'all')
 
         try:
             user_uuid = request.META.get('HTTP_X_REQUEST_USER_ID', None)
@@ -97,7 +97,6 @@ class UserReportListView(APIView):
 
 
 class UserReportDetailView(APIView):
-    # permission_classes = (IsAdminUser, IsRequestUser)
     permission_classes = (IsRequestUser,)
     authentication_classes = (JWTAuthentication,)
 
