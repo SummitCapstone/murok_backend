@@ -14,6 +14,7 @@ from pathlib import Path
 import json
 from .pagination import UserReportListPagination
 import os
+import logging
 
 
 def get_secrets(filename: str) -> dict:
@@ -22,7 +23,6 @@ def get_secrets(filename: str) -> dict:
         secrets = json.loads(f.read())
 
     return secrets
-
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,7 +40,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 CORS_ALLOW_ALL_ORIGINS = True
-
 
 # Application definition
 
@@ -93,6 +92,11 @@ DRAMATIQ_BROKER = {
         'dramatiq.middleware.Retries',
         'django_dramatiq.middleware.DbConnectionsMiddleware',
         'django_dramatiq.middleware.AdminMiddleware',
+        # 'dramatiq.middleware.StatsMiddleware',
+        # 'dramatiq.middleware.LoggingMiddleware',
+        # 'dramatiq.middleware.HookMiddleware',
+        # 'dramatiq.middleware.ExceptionMiddleware',
+        'dramatiq.middleware.Pipelines',
     ]
 }
 
@@ -130,7 +134,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'murok_backend.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -179,7 +182,6 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -198,7 +200,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -209,7 +210,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -233,7 +233,7 @@ SIMPLE_JWT = {
 
 # Passwordless Auth
 PASSWORDLESS_AUTH = {
-   'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
+    'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
     'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': SECRETS.get('EMAIL_HOST_USER', ''),  # callback token을 전송하는 메일
     'PASSWORDLESS_EMAIL_SUBJECT': "무럭무럭 로그인을 위한 인증 번호입니다.",  # Email 제목
     'PASSWORDLESS_EMAIL_PLAINTEXT_MESSAGE': "무럭무럭 로그인을 위한 인증 번호 : %s",  # Email 내용
