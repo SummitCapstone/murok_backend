@@ -77,14 +77,19 @@ class UserReportListView(APIView):
 
         try:
             user_uuid = request.META.get('HTTP_X_REQUEST_USER_ID', None)
+
+
             user_uuid = uuid.UUID(user_uuid, version=4)
         except ValueError:
             return Response({'code': 400, 'message': 'Invalid Request User ID'}, status=400)
         else:
-            # Filter targets
-            targets = UserDiagnosisResult.objects.filter(request_user_id=str(user_uuid))
+            # Check registered user
+            if not isinstance(request.user, AnonymousUser):
+                targets = UserDiagnosisResult.objects.filter(request_user_id__registered_user__id=str(request.user.id))
+            else:
+                # Filter targets
+                targets = UserDiagnosisResult.objects.filter(request_user_id=str(user_uuid))
             targets = apply_criteria(targets, sort, crop, result)
-
 
         # Paginate results
         paginator = self.pagination_class()
