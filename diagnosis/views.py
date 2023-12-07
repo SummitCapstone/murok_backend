@@ -23,6 +23,7 @@ from murok_backend.permissions import IsValidUser
 from murok_backend.settings import BASE_DIR, AI_SERVER_URL
 from .models import CropCategory
 from .exceptions import AIServerError
+from .serializers import serialize_ranking
 # from .tasks import send_diagnosis_data_to_aiserver
 from reports.models import UserDiagnosisResult, CropStatus, translate_crop_status
 import logging
@@ -314,38 +315,3 @@ def send_diagnosis_data_to_aiserver_non_rabbitmq(request_entity: UserDiagnosisRe
     else:
         return result
     # Send the image to AI server.
-
-
-def serialize_ranking(possibility_ranking: list[float], disease_ranking: list[str]) -> tuple[list[dict[str, int | str]], CropCategory or str]:
-    """
-    Serialize the ranking data to JSON format.
-    :param possibility_ranking: Possibility ranking data
-    :param disease_ranking: Disease ranking data
-    :return: Serialized ranking data
-    """
-    # Make a list of dictionaries
-    # [
-    #     {
-    #         "rank": 1,
-    #         "state": "HEALTHY",
-    #         "probability": "80.2"
-    #     },
-    #     {
-    #         "rank": 2,
-    #         "state": "STRAWBERRY_LEAF_SCORCH",
-    #         "probability": "19.8"
-    #     }
-    # ]
-    ranking = []
-    for i in range(len(possibility_ranking)):
-        entity = {
-            'rank': i + 1,
-            'state': disease_ranking[i],
-            'probability': str(possibility_ranking[i])
-        }
-        ranking.append(entity)
-
-    translated_disease = translate_crop_status(disease_ranking[0])
-
-    # Convert disease_ranking[0] to CropCategory
-    return ranking, CropStatus[translated_disease]
