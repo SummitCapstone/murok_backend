@@ -66,11 +66,37 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 
+    'django_dramatiq',
+
 ]
 
 AI_SERVER_URL = SECRETS.get('AI_SERVER_URL', None)
 
+RABBITMQ_USERNAME = SECRETS.get('RABBITMQ_USERNAME', None)
+RABBITMQ_PASSWORD = SECRETS.get('RABBITMQ_PASSWORD', None)
+RABBITMQ_QUEUE_NAME = SECRETS.get('RABBITMQ_QUEUE_NAME', 'default')
+RABBITMQ_URL = SECRETS.get('RABBITMQ_URL', None)
+RABBITMQ_PORT = SECRETS.get('RABBITMQ_PORT', 5672)
 
+RABBITMQ_ACCESS_URI = f'amqp://{RABBITMQ_USERNAME}:{RABBITMQ_PASSWORD}@{RABBITMQ_URL}:{RABBITMQ_PORT}'
+
+DRAMATIQ_BROKER = {
+    'BROKER': 'dramatiq.brokers.rabbitmq.RabbitmqBroker',
+    'OPTIONS': {
+        'url': RABBITMQ_ACCESS_URI,
+    },
+    'MIDDLEWARE': [
+        'dramatiq.middleware.Prometheus',
+        'dramatiq.middleware.AgeLimit',
+        'dramatiq.middleware.TimeLimit',
+        'dramatiq.middleware.Callbacks',
+        'dramatiq.middleware.Retries',
+        'django_dramatiq.middleware.DbConnectionsMiddleware',
+        'django_dramatiq.middleware.AdminMiddleware',
+    ]
+}
+
+DRAMATIQ_TASKS_DATABASE = SECRETS.get('DRAMATIQ_TASKS_DATABASE', 'default')
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
