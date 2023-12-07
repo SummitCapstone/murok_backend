@@ -22,6 +22,7 @@ from murok_backend import settings
 from murok_backend.permissions import IsValidUser
 from murok_backend.settings import BASE_DIR, AI_SERVER_URL
 from .models import CropCategory
+from .exceptions import AIServerError
 # from .tasks import send_diagnosis_data_to_aiserver
 from reports.models import UserDiagnosisResult, CropStatus, translate_crop_status
 import logging
