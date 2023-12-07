@@ -9,7 +9,7 @@
 * MariaDB 10.11.x (LTS) or later (Tested in 11.2.x with problems. See troubleshooting)
 * RabbitMQ 3.12.x or later
 * Erlang 26.1.x or later
-* Certbot 1.21.0 or later (For HTTPS certificates)
+* Caddy Server V2
 * Other requirements are in requirements.txt
 
 To configure frontend development environment, see frontend one.
