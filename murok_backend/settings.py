@@ -246,6 +246,9 @@ PASSWORDLESS_AUTH = {
 
 }
 
+# File Upload Limit (20MB)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520
+
 # Email
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '587'
