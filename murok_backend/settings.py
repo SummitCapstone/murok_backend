@@ -231,6 +231,9 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),  # RefreshToken 수명 설정
 }
 
+# File upload limit: 20MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520
+
 # Passwordless Auth
 PASSWORDLESS_AUTH = {
    'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],  # Email, Mobile 중 Email만 지원
