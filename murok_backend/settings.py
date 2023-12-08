@@ -67,6 +67,8 @@ INSTALLED_APPS = [
 
     'django_dramatiq',
 
+    'push_notifications'
+
 ]
 
 AI_SERVER_URL = SECRETS.get('AI_SERVER_URL', None)
